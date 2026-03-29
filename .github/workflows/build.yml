@@ -1,0 +1,136 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Linux build
+  # ─────────────────────────────────────────────
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y \
+            clang cmake ninja-build pkg-config \
+            libgtk-3-dev libblkid-dev liblzma-dev \
+            libnotify-dev libsecret-1-dev \
+            libayatana-appindicator3-dev
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build Linux (release)
+        run: flutter build linux --release
+
+      - name: Create archive
+        run: |
+          cd build/linux/x64/release
+          tar -czf kinetic_archive-linux-x64.tar.gz bundle/
+          mv kinetic_archive-linux-x64.tar.gz $GITHUB_WORKSPACE/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kinetic_archive-linux-x64
+          path: kinetic_archive-linux-x64.tar.gz
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Windows build
+  # ─────────────────────────────────────────────
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: stable
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Run code generation
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build Windows (release)
+        run: flutter build windows --release
+
+      - name: Create archive
+        shell: pwsh
+        run: |
+          Compress-Archive `
+            -Path "build\windows\x64\runner\Release\*" `
+            -DestinationPath "kinetic_archive-windows-x64.zip"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kinetic_archive-windows-x64
+          path: kinetic_archive-windows-x64.zip
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Release: runs only on version tags (v*)
+  # ─────────────────────────────────────────────
+  release:
+    name: Create GitHub Release
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kinetic_archive-linux-x64
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: kinetic_archive-windows-x64
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "The Kinetic Archive ${{ github.ref_name }}"
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}
+          generate_release_notes: true
+          files: |
+            kinetic_archive-linux-x64.tar.gz
+            kinetic_archive-windows-x64.zip

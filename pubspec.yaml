@@ -1,0 +1,60 @@
+name: kinetic_archive
+description: "The Kinetic Archive — portable backup utility"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Persistence
+  hive_flutter: ^1.1.0
+  sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.4
+  path_provider: ^2.1.5
+
+  # UI / Fonts
+  google_fonts: ^6.2.1
+
+  # File system
+  file_picker: ^8.1.7
+  path: ^1.9.1
+
+  # Desktop integration
+  tray_manager: ^0.2.3
+  window_manager: ^0.4.3
+  local_notifier: ^0.1.6
+
+  # Data / serialization
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+  intl: ^0.20.2
+
+  # Scheduling
+  cron: ^0.5.1
+
+  # Utilities
+  uuid: ^4.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.15
+  freezed: ^2.5.7
+  riverpod_generator: ^2.6.3
+  json_serializable: ^6.8.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/binaries/linux/
+    - assets/binaries/windows/
+    - assets/icons/
