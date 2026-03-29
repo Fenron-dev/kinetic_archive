@@ -45,11 +45,23 @@ static void my_application_activate(GApplication* application) {
   if (use_header_bar) {
     GtkHeaderBar* header_bar = GTK_HEADER_BAR(gtk_header_bar_new());
     gtk_widget_show(GTK_WIDGET(header_bar));
-    gtk_header_bar_set_title(header_bar, "kinetic_archive");
+    gtk_header_bar_set_title(header_bar, "The Kinetic Archive");
     gtk_header_bar_set_show_close_button(header_bar, TRUE);
     gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   } else {
-    gtk_window_set_title(window, "kinetic_archive");
+    gtk_window_set_title(window, "The Kinetic Archive");
+  }
+
+  // Set application window icon.
+  {
+    gchar* icon_path = g_build_filename(
+        g_get_current_dir(), "data", "app_icon.png", nullptr);
+    GdkPixbuf* icon = gdk_pixbuf_new_from_file(icon_path, nullptr);
+    if (icon) {
+      gtk_window_set_icon(window, icon);
+      g_object_unref(icon);
+    }
+    g_free(icon_path);
   }
 
   gtk_window_set_default_size(window, 1280, 720);

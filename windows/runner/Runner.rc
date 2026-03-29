@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "dev.kineticarchive" "\0"
-            VALUE "FileDescription", "kinetic_archive" "\0"
+            VALUE "FileDescription", "The Kinetic Archive" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "kinetic_archive" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 dev.kineticarchive. All rights reserved." "\0"
             VALUE "OriginalFilename", "kinetic_archive.exe" "\0"
-            VALUE "ProductName", "kinetic_archive" "\0"
+            VALUE "ProductName", "The Kinetic Archive" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
